@@ -1,0 +1,56 @@
+# ─────────────────────────────
+# Altium Designer
+# ─────────────────────────────
+__Previews/
+*.PrjPcbStructure
+*.DatabaseIndex
+*.Log
+*.tmp
+*.bak
+*.zip
+*.dmp
+*.swp
+*.swo
+*.swn
+
+# Backup folders Altium may create
+History/
+~$*
+
+# ─────────────────────────────
+# STM32CubeIDE / STM32CubeMX
+# ─────────────────────────────
+# Build and output directories
+/Debug/
+/Release/
+/build/
+/.build/
+
+# IDE settings and metadata
+/.settings/
+/.cproject
+.project
+*.launch
+
+# Build artifacts
+*.bin
+*.elf
+*.hex
+*.o
+*.lst
+*.map
+*.log
+
+# CubeMX files generated from .ioc
+*.ioc~  # CubeMX autosave files
+
+# ─────────────────────────────
+# General OS / Editor junk
+# ─────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*.tmp
+*.bak
