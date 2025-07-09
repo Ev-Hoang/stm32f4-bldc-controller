@@ -61,3 +61,12 @@ This is a 6-step BLDC motor controller implemented on the STM32F407 using Hall s
 - Demo video running motor with PID control
 
 ---
+
+## 👥 Contributors
+
+This project was developed by the following team as part of the BLDC Lab project at University of Engineering and Technology:
+
+- Hoàng Đức Kiên (Ev) – Firmware development, system architecture
+- Vũ Công Hoan - Hardware circuit design, testing
+
+Supervisor: Dr. Quoc Tuan Vu – Lecturer, Embedded Systems Lab
