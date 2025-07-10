@@ -42,13 +42,6 @@ volatile uint8_t currentCommStep = 0; // Trạng thái commutation
 //FUNCTIONS
 //======================================================
 
-//Starting PWM
-void PWM_Start_All(void) {
-    TIM2->CR1 |= TIM_CR1_CEN;
-    TIM3->CR1 |= TIM_CR1_CEN;
-    TIM4->CR1 |= TIM_CR1_CEN;
-}
-
 //Function use to handle the hall sequences, provided through "Steps",
 //and given the value "pwmVal" to change duty cycle for specific step.
 void handleCommutation(uint8_t step, uint8_t pwmVal) {
@@ -151,7 +144,7 @@ void EXTI9_5_IRQHandler(void)
 
 //Function initialize the BLDC, by picking the first HALL sequence,
 //or create 1 if its undefined
-void bldcStartup() {
+void BLDC_Start() {
   // Đọc giá trị các chân PA5, PA6, PA7 trực tiếp từ thanh ghi
   uint32_t idr = GPIOA->IDR;
   uint8_t hallA = (idr >> 5) & 0x01;
@@ -196,7 +189,7 @@ int main(void)
 
   //USART1_UART_Init();
 
-  bldcStartup();
+  BLDC_Start();
 
   while (1)
   {
@@ -216,8 +209,8 @@ void TIM2_Init(void) {
     RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
 
     // Set prescaler and auto-reload for 1kHz PWM
-    TIM2->PSC = 83;     // 84MHz / (83+1) = 1MHz
-    TIM2->ARR = 1000;   // PWM frequency = 1kHz
+    TIM2->PSC = 3;     // 84MHz / (3+1) = 21MHz
+    TIM2->ARR = 1000;   // PWM frequency ~ 20.9Khz
 
     // PWM mode 1, preload enable for CH1-CH4
     TIM2->CCMR1 |= (6 << 4) | TIM_CCMR1_OC1PE;  // CH1
@@ -244,7 +237,7 @@ void TIM2_Init(void) {
 
 void TIM3_Init(void) {
     RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
-    TIM3->PSC = 83;
+    TIM3->PSC = 3;
     TIM3->ARR = 1000;
 
     TIM3->CCMR1 |= (6 << 4) | TIM_CCMR1_OC1PE;
@@ -267,7 +260,7 @@ void TIM3_Init(void) {
 
 void TIM4_Init(void) {
     RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
-    TIM4->PSC = 83;
+    TIM4->PSC = 3;
     TIM4->ARR = 1000;
 
     TIM4->CCMR1 |= (6 << 4) | TIM_CCMR1_OC1PE;
