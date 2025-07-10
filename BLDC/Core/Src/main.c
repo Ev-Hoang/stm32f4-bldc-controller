@@ -1,10 +1,12 @@
 #include "main.h"
 
+// Value in the PWM
 #define lowMax 0x00
 #define lowMin 0xFF
 #define highMax 0xFF
 #define highMin 0x00
 
+// Changing the duty of PWM
 #define SET_PWM_1_H1(val)  (TIM2->CCR1 = (val))
 #define SET_PWM_1_H2(val)  (TIM2->CCR2 = (val))
 #define SET_PWM_1_H3(val)  (TIM2->CCR3 = (val))
@@ -20,11 +22,13 @@
 #define SET_PWM_2_L2(val)  (TIM2->CCR3 = (val))
 #define SET_PWM_2_L3(val)  (TIM2->CCR4 = (val))
 
+//HALL sequence during the rotations
 const uint8_t hallSequenceCW[6]  = {0b001, 0b010, 0b011, 0b100, 0b101, 0b110};
 
+//This value will be used for the PID_Controller
 uint8_t pwmVal = 50;
 
-// Khai báo circular buffer
+//Initilization of circular buffer
 #define BUFFER_SIZE 2
 volatile uint8_t commBuffer[BUFFER_SIZE];
 volatile uint8_t bufferHead = 0;
@@ -33,12 +37,20 @@ volatile uint8_t bufferTail = 0;
 volatile uint8_t hallState = 0;
 volatile uint8_t currentCommStep = 0; // Trạng thái commutation
 
+
+//======================================================
+//FUNCTIONS
+//======================================================
+
+//Starting PWM
 void PWM_Start_All(void) {
     TIM2->CR1 |= TIM_CR1_CEN;
     TIM3->CR1 |= TIM_CR1_CEN;
     TIM4->CR1 |= TIM_CR1_CEN;
 }
 
+//Function use to handle the hall sequences, provided through "Steps",
+//and given the value "pwmVal" to change duty cycle for specific step.
 void handleCommutation(uint8_t step, uint8_t pwmVal) {
     switch (step) {
         case 0:
@@ -100,6 +112,8 @@ void handleCommutation(uint8_t step, uint8_t pwmVal) {
     }
 }
 
+//Interupted is called when HALL SENSOR got a change of data
+//used to find the right hall sequence, and provide the next step for handleCommutation
 void EXTI9_5_IRQHandler(void)
 {
     // 1. Đọc trực tiếp giá trị các chân PA5, PA6, PA7 từ GPIOA->IDR
@@ -135,6 +149,8 @@ void EXTI9_5_IRQHandler(void)
     EXTI->PR |= (1 << 7);
 }
 
+//Function initialize the BLDC, by picking the first HALL sequence,
+//or create 1 if its undefined
 void bldcStartup() {
   // Đọc giá trị các chân PA5, PA6, PA7 trực tiếp từ thanh ghi
   uint32_t idr = GPIOA->IDR;
@@ -166,6 +182,10 @@ static void TIM3_Init(void);
 static void TIM4_Init(void);
 //static void USART1_UART_Init(void);
 
+//======================================================
+//MAIN
+//======================================================
+
 int main(void)
 {
   GPIO_Init();
@@ -188,6 +208,9 @@ int main(void)
   }
 }
 
+//======================================================
+//TIMER INITIALIZE
+//======================================================
 void TIM2_Init(void) {
     // Enable TIM2 clock
     RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
@@ -265,6 +288,9 @@ void TIM4_Init(void) {
     TIM4->CR1 |= TIM_CR1_CEN;
 }
 
+//======================================================
+//GPIO INITIALIZE
+//======================================================
 void GPIO_Init(void) {
     // 1. Enable GPIOA and GPIOB clock
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
