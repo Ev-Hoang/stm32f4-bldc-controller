@@ -37,6 +37,18 @@ volatile uint8_t bufferTail = 0;
 volatile uint8_t hallState = 0;
 volatile uint8_t currentCommStep = 0; // Trạng thái commutation
 
+//======================================================
+//TEST FUNCTION
+//======================================================
+
+void USART1_SendChar(char c) {
+    while (!(USART1->SR & USART_SR_TXE));  // Chờ TX trống
+    USART1->DR = c;
+}
+
+void USART1_SendString(const char *s) {
+    while (*s) USART1_SendChar(*s++);
+}
 
 //======================================================
 //FUNCTIONS
@@ -165,7 +177,6 @@ void BLDC_Start() {
 		  }
 	  }
   }
-
     handleCommutation(currentCommStep, pwmVal);
 }
 
@@ -173,7 +184,7 @@ static void GPIO_Init(void);
 static void TIM2_Init(void);
 static void TIM3_Init(void);
 static void TIM4_Init(void);
-//static void USART1_UART_Init(void);
+static void USART1_UART_Init(void);
 
 //======================================================
 //MAIN
@@ -187,7 +198,7 @@ int main(void)
   TIM3_Init();
   TIM4_Init();
 
-  //USART1_UART_Init();
+  USART1_UART_Init();
 
   BLDC_Start();
 
@@ -332,4 +343,27 @@ void GPIO_Init(void) {
 
     GPIOA->PUPDR &= ~(0b11 << (7 * 2));
     GPIOA->PUPDR |=  (0b01 << (7 * 2));  // Pull-up cho PA7
+
+    //Cấu hình PA9 (TX) và PA10 (RX) ở chế độ Alternate Function AF7
+    GPIOA->MODER &= ~((0b11 << (9 * 2)) | (0b11 << (10 * 2))); // Clear
+    GPIOA->MODER |=  ((0b10 << (9 * 2)) | (0b10 << (10 * 2))); // AF mode
+
+    GPIOA->AFR[1] &= ~((0xF << (1 * 4)) | (0xF << (2 * 4)));   // Clear AFRH9/10
+    GPIOA->AFR[1] |=  ((0x7 << (1 * 4)) | (0x7 << (2 * 4)));   // AF7 = USART1
+
+}
+
+void USART1_UART_Init(void) {
+    RCC->APB2ENR |= RCC_APB2ENR_USART1EN;  // Enable USART1 (nằm trên APB2)
+
+    USART1->CR1 = 0;  // Tắt USART trước khi cấu hình
+
+    // Baudrate: ví dụ 115200 với PCLK2 = 84MHz
+    // USARTDIV = 84MHz / (16 * 115200) ≈ 45.5625
+    // Mantissa = 45, Fraction = 0.5625 * 16 ≈ 9 → BRR = 0x2D9
+    USART1->BRR = (45 << 4) | 9;
+
+    // 8-bit data, 1 stop bit, no parity, no flow control
+    USART1->CR1 |= USART_CR1_TE | USART_CR1_RE;  // Enable TX + RX
+    USART1->CR1 |= USART_CR1_UE;                 // Bật USART
 }
