@@ -1,0 +1,9 @@
+../Core/Src/main.c:36:6:PWM_Start_All	1
+../Core/Src/main.c:42:6:handleCommutation	10
+../Core/Src/main.c:103:6:EXTI9_5_IRQHandler	8
+../Core/Src/main.c:138:6:bldcStartup	4
+../Core/Src/main.c:169:5:main	2
+../Core/Src/main.c:191:6:TIM2_Init	1
+../Core/Src/main.c:222:6:TIM3_Init	1
+../Core/Src/main.c:245:6:TIM4_Init	1
+../Core/Src/main.c:268:6:GPIO_Init	1
