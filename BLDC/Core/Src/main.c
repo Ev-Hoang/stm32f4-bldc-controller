@@ -1,5 +1,6 @@
 #include "main.h"
 #include "usb_device.h"
+#include "usbd_cdc_if.h"
 
 // Value in the PWM
 #define lowMax 0x00
@@ -42,13 +43,11 @@ volatile uint8_t currentCommStep = 0; // Trạng thái commutation
 //TEST FUNCTION
 //======================================================
 
-void USART1_SendChar(char c) {
-    while (!(USART1->SR & USART_SR_TXE));  // Chờ TX trống
-    USART1->DR = c;
-}
-
-void USART1_SendString(const char *s) {
-    while (*s) USART1_SendChar(*s++);
+void CDC_Transmit(char *msg)
+{
+    uint16_t len = strlen(msg);
+    USBD_CDC_SetTxBuffer(&hUsbDeviceFS, (uint8_t*)msg, len);
+    USBD_CDC_TransmitPacket(&hUsbDeviceFS);
 }
 
 //======================================================
@@ -216,6 +215,10 @@ int main(void)
 	  bufferTail = (bufferTail + 1) % BUFFER_SIZE;
 	  handleCommutation(step, pwmVal);
 	}
+
+	for(int i = 0 ; i < 100000; i++) {
+	}
+	CDC_Transmit("hello \r\n");
   }
 }
 
