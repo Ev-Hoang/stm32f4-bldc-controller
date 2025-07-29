@@ -1,0 +1,7 @@
+../Core/Src/_stm32_init.c:6:6:STM32_Init	1
+../Core/Src/_stm32_init.c:32:6:SystemClock_Config	5
+../Core/Src/_stm32_init.c:79:6:TIM2_Init	1
+../Core/Src/_stm32_init.c:110:6:TIM3_Init	1
+../Core/Src/_stm32_init.c:133:6:TIM4_Init	1
+../Core/Src/_stm32_init.c:159:6:GPIO_Init	1
+../Core/Src/_stm32_init.c:220:6:USART1_UART_Init	1
