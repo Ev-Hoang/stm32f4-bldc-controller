@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "_stm32_init.h"
+#include "_bufferHandler.h"
 
 // Value in the PWM
 #define lowMax 0x00
@@ -29,12 +30,6 @@ const uint8_t hallSequenceCW[6]  = {0b001, 0b010, 0b011, 0b100, 0b101, 0b110};
 
 //This value will be used for the PID_Controller
 uint8_t pwmVal = 50;
-
-//Initilization of circular buffer
-#define BUFFER_SIZE 2
-volatile uint8_t commBuffer[BUFFER_SIZE];
-volatile uint8_t bufferHead = 0;
-volatile uint8_t bufferTail = 0;
 
 volatile uint8_t hallState = 0;
 volatile uint8_t currentCommStep = 0; // Trạng thái commutation
@@ -141,18 +136,20 @@ void EXTI9_5_IRQHandler(void)
         default:    currentCommStep = 255; break;
     }
 
-    // 4. Ghi vào buffer nếu còn trống
-    uint8_t nextHead = (bufferHead + 1) % BUFFER_SIZE;
-    if (nextHead != bufferTail) {
-        commBuffer[bufferHead] = currentCommStep;
-        bufferHead = nextHead;
-    }
-
+    bufferAdd(currentCommStep);
     // 5. Xóa cờ ngắt EXTI line 5~9 (tránh ngắt lặp lại)
     EXTI->PR |= (1 << 5);
     EXTI->PR |= (1 << 6);
     EXTI->PR |= (1 << 7);
 }
+
+//void bufferAdd(int buffer) {
+//    uint8_t nextHead = (bufferHead + 1) % BUFFER_SIZE;
+//    if (nextHead != bufferTail) {
+//        arrayBuffer[bufferHead] = buffer;
+//        bufferHead = nextHead;
+//    }
+//}
 
 //Function initialize the BLDC, by picking the first HALL sequence,
 //or create 1 if its undefined
@@ -180,33 +177,33 @@ void BLDC_Start() {
     handleCommutation(currentCommStep, pwmVal);
 }
 
+//int bufferGet() {
+//	if (bufferTail != bufferHead) {
+//	  uint8_t buffer = arrayBuffer[bufferTail];
+//	  bufferTail = (bufferTail + 1) % BUFFER_SIZE;
+//	  return buffer;
+//	}
+//}
+
 //======================================================
 //MAIN
 //======================================================
 
 int main(void)
 {
-  //HAL_Init();
-
   STM32_Init();
-
-  //MX_USB_DEVICE_Init();
-
-
-
   BLDC_Start();
 
+  //Program loop
   while (1)
   {
-	if (bufferTail != bufferHead) {
-	  uint8_t step = commBuffer[bufferTail];
-	  bufferTail = (bufferTail + 1) % BUFFER_SIZE;
-	  handleCommutation(step, pwmVal);
-	}
+	//Handling Buffers
+	handleCommutation(bufferGet(), pwmVal);
+	//Test sending
+//	for(int i = 0 ; i < 100000; i++) {
+//	}
+//	CDC_Transmit("hello \r\n");
 
-	for(int i = 0 ; i < 100000; i++) {
-	}
-	CDC_Transmit("hello \r\n");
   }
 }
 
