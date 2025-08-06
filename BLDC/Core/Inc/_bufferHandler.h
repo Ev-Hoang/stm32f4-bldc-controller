@@ -24,6 +24,7 @@ extern uint8_t bufferTail;
 
 extern void bufferAdd(uint8_t buffer);
 extern int bufferGet();
+extern int isBufferReady();
 
 #ifdef __cplusplus
 }

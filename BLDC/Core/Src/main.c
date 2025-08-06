@@ -198,7 +198,9 @@ int main(void)
   while (1)
   {
 	//Handling Buffers
-	handleCommutation(bufferGet(), pwmVal);
+	if(isBufferReady()) {
+		handleCommutation(bufferGet(), pwmVal);
+	}
 	//Test sending
 //	for(int i = 0 ; i < 100000; i++) {
 //	}

@@ -19,6 +19,10 @@ void bufferAdd(uint8_t buffer) {
     }
 }
 
+int isBufferReady() {
+	return (bufferTail != bufferHead);
+}
+
 int bufferGet() {
 	if (bufferTail != bufferHead) {
 	  uint8_t buffer = arrayBuffer[bufferTail];

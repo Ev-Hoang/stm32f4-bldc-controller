@@ -1,2 +1,3 @@
 ../Core/Src/_bufferHandler.c:14:6:bufferAdd	24	static
-../Core/Src/_bufferHandler.c:22:5:bufferGet	16	static
+../Core/Src/_bufferHandler.c:22:5:isBufferReady	4	static
+../Core/Src/_bufferHandler.c:26:5:bufferGet	16	static
