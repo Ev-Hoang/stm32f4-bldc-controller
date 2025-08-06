@@ -26,7 +26,16 @@
 #define SET_PWM_2_L3(val)  (TIM2->CCR4 = (val))
 
 //HALL sequence during the rotations
-const uint8_t hallSequenceCW[6]  = {0b001, 0b010, 0b011, 0b100, 0b101, 0b110};
+const int8_t hallCWLookup[8] = {
+    -1, // 0b000 (0): invalid
+     0, // 0b001 (1)
+     1, // 0b010 (2)
+     2, // 0b011 (3)
+     3, // 0b100 (4)
+     4, // 0b101 (5)
+     5, // 0b110 (6)
+    -1  // 0b111 (7): invalid
+};
 
 //This value will be used for the PID_Controller
 uint8_t pwmVal = 50;
@@ -116,74 +125,46 @@ void handleCommutation(uint8_t step, uint8_t pwmVal) {
 //used to find the right hall sequence, and provide the next step for handleCommutation
 void EXTI9_5_IRQHandler(void)
 {
-    // 1. Đọc trực tiếp giá trị các chân PA5, PA6, PA7 từ GPIOA->IDR
     uint32_t idr = GPIOA->IDR;
     uint8_t hallA = (idr >> 5) & 0x01;
     uint8_t hallB = (idr >> 6) & 0x01;
     uint8_t hallC = (idr >> 7) & 0x01;
 
-    // 2. Gộp thành hallState
     hallState = (hallA << 2) | (hallB << 1) | hallC;
 
-    // 3. Tra bảng commutation
-    switch (hallState) {
-        case 0b001: currentCommStep = 0; break;
-        case 0b011: currentCommStep = 1; break;
-        case 0b010: currentCommStep = 2; break;
-        case 0b110: currentCommStep = 3; break;
-        case 0b100: currentCommStep = 4; break;
-        case 0b101: currentCommStep = 5; break;
-        default:    currentCommStep = 255; break;
-    }
+    int8_t step = hallCWLookup[hallState];
+    if (step >= 0) {currentCommStep = step;}
+    else {currentCommStep = 0;}
 
     bufferAdd(currentCommStep);
-    // 5. Xóa cờ ngắt EXTI line 5~9 (tránh ngắt lặp lại)
+
     EXTI->PR |= (1 << 5);
     EXTI->PR |= (1 << 6);
     EXTI->PR |= (1 << 7);
 }
 
-//void bufferAdd(int buffer) {
-//    uint8_t nextHead = (bufferHead + 1) % BUFFER_SIZE;
-//    if (nextHead != bufferTail) {
-//        arrayBuffer[bufferHead] = buffer;
-//        bufferHead = nextHead;
-//    }
-//}
-
 //Function initialize the BLDC, by picking the first HALL sequence,
 //or create 1 if its undefined
 void BLDC_Start() {
-  // Đọc giá trị các chân PA5, PA6, PA7 trực tiếp từ thanh ghi
-  uint32_t idr = GPIOA->IDR;
-  uint8_t hallA = (idr >> 5) & 0x01;
-  uint8_t hallB = (idr >> 6) & 0x01;
-  uint8_t hallC = (idr >> 7) & 0x01;
+    uint32_t idr = GPIOA->IDR;
+    uint8_t hallA = (idr >> 5) & 0x01;
+    uint8_t hallB = (idr >> 6) & 0x01;
+    uint8_t hallC = (idr >> 7) & 0x01;
 
-  hallState = (hallA << 2) | (hallB << 1) | hallC;
+    hallState = (hallA << 2) | (hallB << 1) | hallC;
 
-  // Nếu hallState không hợp lệ (000), đặt bước đầu tiên
-  if (hallState == 0) {
-	  currentCommStep = 0;
-  } else {
-	  // Tra trong bảng hallSequenceCW[]
-	  for (uint8_t i = 0; i < 6; i++) {
-		  if (hallState == hallSequenceCW[i]) {
-			  currentCommStep = i;
-			  break;
-		  }
-	  }
-  }
-    handleCommutation(currentCommStep, pwmVal);
+    switch (hallState) {
+        case hallSequenceCW[0]: currentCommStep = 0; break;
+        case hallSequenceCW[1]: currentCommStep = 1; break;
+        case hallSequenceCW[2]: currentCommStep = 2; break;
+        case hallSequenceCW[3]: currentCommStep = 3; break;
+        case hallSequenceCW[4]: currentCommStep = 4; break;
+        case hallSequenceCW[5]: currentCommStep = 5; break;
+        default:    currentCommStep = 0; break;
+    }
+
+    bufferAdd(currentCommStep);
 }
-
-//int bufferGet() {
-//	if (bufferTail != bufferHead) {
-//	  uint8_t buffer = arrayBuffer[bufferTail];
-//	  bufferTail = (bufferTail + 1) % BUFFER_SIZE;
-//	  return buffer;
-//	}
-//}
 
 //======================================================
 //MAIN
