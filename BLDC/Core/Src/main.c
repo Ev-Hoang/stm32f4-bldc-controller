@@ -110,20 +110,11 @@ void handleCommutation(uint8_t step, uint8_t pwmVal) {
 			SET_PWM_1_L1(lowMin);
 			SET_PWM_1_L2(lowMin);
             break;
-        case 255:
-            // Tắt tất cả các pha khi không xác định
-            SET_PWM_1_H1(highMin);
-			SET_PWM_1_H2(highMin);
-			SET_PWM_1_H3(highMin);
-			SET_PWM_1_L1(lowMin);
-			SET_PWM_1_L2(lowMin);
-			SET_PWM_1_L3(lowMin);
+        default: break;
     }
 }
 
-//Interupted is called when HALL SENSOR got a change of data
-//used to find the right hall sequence, and provide the next step for handleCommutation
-void EXTI9_5_IRQHandler(void)
+void readHallSensor(void)
 {
     uint32_t idr = GPIOA->IDR;
     uint8_t hallA = (idr >> 5) & 0x01;
@@ -133,10 +124,14 @@ void EXTI9_5_IRQHandler(void)
     hallState = (hallA << 2) | (hallB << 1) | hallC;
 
     int8_t step = hallCWLookup[hallState];
-    if (step >= 0) {currentCommStep = step;}
-    else {currentCommStep = 0;}
-
-    bufferAdd(currentCommStep);
+    if (step >= 0) return step;
+    return 0;
+}
+//Interupted is called when HALL SENSOR got a change of data
+//used to find the right hall sequence, and provide the next step for handleCommutation
+void EXTI9_5_IRQHandler(void)
+{
+    bufferAdd(readHallSensor());
 
     EXTI->PR |= (1 << 5);
     EXTI->PR |= (1 << 6);
@@ -146,24 +141,7 @@ void EXTI9_5_IRQHandler(void)
 //Function initialize the BLDC, by picking the first HALL sequence,
 //or create 1 if its undefined
 void BLDC_Start() {
-    uint32_t idr = GPIOA->IDR;
-    uint8_t hallA = (idr >> 5) & 0x01;
-    uint8_t hallB = (idr >> 6) & 0x01;
-    uint8_t hallC = (idr >> 7) & 0x01;
-
-    hallState = (hallA << 2) | (hallB << 1) | hallC;
-
-    switch (hallState) {
-        case hallSequenceCW[0]: currentCommStep = 0; break;
-        case hallSequenceCW[1]: currentCommStep = 1; break;
-        case hallSequenceCW[2]: currentCommStep = 2; break;
-        case hallSequenceCW[3]: currentCommStep = 3; break;
-        case hallSequenceCW[4]: currentCommStep = 4; break;
-        case hallSequenceCW[5]: currentCommStep = 5; break;
-        default:    currentCommStep = 0; break;
-    }
-
-    bufferAdd(currentCommStep);
+    bufferAdd(readHallSensor());
 }
 
 //======================================================
