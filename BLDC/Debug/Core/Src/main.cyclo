@@ -1,0 +1,7 @@
+../Core/Src/main.c:50:6:CDC_Transmit	1
+../Core/Src/main.c:63:6:handleCommutation	7
+../Core/Src/main.c:117:5:readHallSensor	2
+../Core/Src/main.c:132:6:EXTI9_5_IRQHandler	1
+../Core/Src/main.c:143:6:BLDC_Start	1
+../Core/Src/main.c:151:5:main	2
+../Core/Src/main.c:174:6:Error_Handler	1

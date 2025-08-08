@@ -114,7 +114,7 @@ void handleCommutation(uint8_t step, uint8_t pwmVal) {
     }
 }
 
-void readHallSensor(void)
+int readHallSensor(void)
 {
     uint32_t idr = GPIOA->IDR;
     uint8_t hallA = (idr >> 5) & 0x01;
