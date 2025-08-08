@@ -1,4 +1,5 @@
 "./Core/Src/_bufferHandler.o"
+"./Core/Src/_hall_sensor.o"
 "./Core/Src/_stm32_init.o"
 "./Core/Src/main.o"
 "./Core/Src/stm32f4xx_hal_msp.o"

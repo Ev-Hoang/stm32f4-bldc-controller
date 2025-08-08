@@ -2,50 +2,14 @@
 
 #include "_stm32_init.h"
 #include "_bufferHandler.h"
+#include "_hall_sensor.h"
 
-// Value in the PWM
-#define lowMax 0x00
-#define lowMin 0xFF
-#define highMax 0xFF
-#define highMin 0x00
-
-// Changing the duty of PWM
-#define SET_PWM_1_H1(val)  (TIM2->CCR1 = (val))
-#define SET_PWM_1_H2(val)  (TIM2->CCR2 = (val))
-#define SET_PWM_1_H3(val)  (TIM2->CCR3 = (val))
-#define SET_PWM_1_L1(val)  (TIM2->CCR4 = (val))
-
-#define SET_PWM_1_L2(val)  (TIM3->CCR1 = (val))
-#define SET_PWM_1_L3(val)  (TIM3->CCR2 = (val))
-#define SET_PWM_2_H1(val)  (TIM3->CCR3 = (val))
-#define SET_PWM_2_H2(val)  (TIM3->CCR4 = (val))
-
-#define SET_PWM_2_H3(val)  (TIM2->CCR1 = (val))
-#define SET_PWM_2_L1(val)  (TIM2->CCR2 = (val))
-#define SET_PWM_2_L2(val)  (TIM2->CCR3 = (val))
-#define SET_PWM_2_L3(val)  (TIM2->CCR4 = (val))
-
-//HALL sequence during the rotations
-const int8_t hallCWLookup[8] = {
-    -1, // 0b000 (0): invalid
-     0, // 0b001 (1)
-     1, // 0b010 (2)
-     2, // 0b011 (3)
-     3, // 0b100 (4)
-     4, // 0b101 (5)
-     5, // 0b110 (6)
-    -1  // 0b111 (7): invalid
-};
+//======================================================
+//TEST FUNCTION & VARIABLES
+//======================================================
 
 //This value will be used for the PID_Controller
 uint8_t pwmVal = 50;
-
-volatile uint8_t hallState = 0;
-volatile uint8_t currentCommStep = 0; // Trạng thái commutation
-
-//======================================================
-//TEST FUNCTION
-//======================================================
 
 void CDC_Transmit(char *msg)
 {
@@ -58,75 +22,7 @@ void CDC_Transmit(char *msg)
 //FUNCTIONS
 //======================================================
 
-//Function use to handle the hall sequences, provided through "Steps",
-//and given the value "pwmVal" to change duty cycle for specific step.
-void handleCommutation(uint8_t step, uint8_t pwmVal) {
-    switch (step) {
-        case 0:
-            SET_PWM_1_H3(pwmVal);
-            SET_PWM_1_L2(lowMax);
-            SET_PWM_1_H1(highMin);
-            SET_PWM_1_H2(highMin);
-            SET_PWM_1_L1(lowMin);
-            SET_PWM_1_L3(lowMin);
-            break;
-        case 1:
-			SET_PWM_1_H2(pwmVal);
-			SET_PWM_1_L1(lowMax);
-			SET_PWM_1_H1(highMin);
-			SET_PWM_1_H3(highMin);
-			SET_PWM_1_L2(lowMin);
-			SET_PWM_1_L3(lowMin);
-            break;
-        case 2:
-            SET_PWM_1_H3(pwmVal);
-			SET_PWM_1_L1(lowMax);
-			SET_PWM_1_H1(highMin);
-			SET_PWM_1_H2(highMin);
-			SET_PWM_1_L2(lowMin);
-			SET_PWM_1_L3(lowMin);
-            break;
-        case 3:
-            SET_PWM_1_H1(pwmVal);
-			SET_PWM_1_L3(lowMax);
-			SET_PWM_1_H2(highMin);
-			SET_PWM_1_H3(highMin);
-			SET_PWM_1_L1(lowMin);
-			SET_PWM_1_L2(lowMin);
-            break;
-        case 4:
-            SET_PWM_1_H1(pwmVal);
-			SET_PWM_1_L2(lowMax);
-			SET_PWM_1_H2(highMin);
-			SET_PWM_1_H3(highMin);
-			SET_PWM_1_L1(lowMin);
-			SET_PWM_1_L3(lowMin);
-            break;
-        case 5:
-            SET_PWM_1_H2(pwmVal);
-			SET_PWM_1_L3(lowMax);
-			SET_PWM_1_H1(highMin);
-			SET_PWM_1_H3(highMin);
-			SET_PWM_1_L1(lowMin);
-			SET_PWM_1_L2(lowMin);
-            break;
-        default: break;
-    }
-}
 
-int readHallSensor(void)
-{
-    uint32_t idr = GPIOA->IDR;
-    uint8_t hallA = (idr >> 5) & 0x01;
-    uint8_t hallB = (idr >> 6) & 0x01;
-    uint8_t hallC = (idr >> 7) & 0x01;
-
-    hallState = (hallA << 2) | (hallB << 1) | hallC;
-
-    int8_t step = hallCWLookup[hallState];
-    if (step >= 0) return step;
-    return 0;
-}
 //Interupted is called when HALL SENSOR got a change of data
 //used to find the right hall sequence, and provide the next step for handleCommutation
 void EXTI9_5_IRQHandler(void)

@@ -1,0 +1,2 @@
+../Core/Src/_hall_sensor.c:24:6:handleCommutation	16	static
+../Core/Src/_hall_sensor.c:78:5:readHallSensor	16	static

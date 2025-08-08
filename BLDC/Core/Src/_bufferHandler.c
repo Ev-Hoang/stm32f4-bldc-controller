@@ -7,8 +7,8 @@
 
 #include "_bufferHandler.h"
 
-uint8_t bufferHead;
-uint8_t bufferTail;
+uint8_t bufferHead = 0;
+uint8_t bufferTail = 0;
 uint8_t arrayBuffer[BUFFER_SIZE];
 
 void bufferAdd(uint8_t buffer) {
@@ -29,4 +29,5 @@ int bufferGet() {
 	  bufferTail = (bufferTail + 1) % BUFFER_SIZE;
 	  return buffer;
 	}
+	return -1; // buffer rỗng
 }
