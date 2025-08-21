@@ -30,4 +30,4 @@ extern int isBufferReady();
 }
 #endif
 
-#endif /* INC__BUFFERHANDLER_H_ */
+#endif

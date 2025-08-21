@@ -3,6 +3,7 @@
 #include "_stm32_init.h"
 #include "_bufferHandler.h"
 #include "_hall_sensor.h"
+#include "_stm32_usb_cdc.h"
 
 //======================================================
 //TEST FUNCTION & VARIABLES
@@ -47,20 +48,23 @@ void BLDC_Start() {
 int main(void)
 {
   STM32_Init();
-  BLDC_Start();
+  //BLDC_Start();
 
   //Program loop
   while (1)
   {
 	//Handling Buffers
-	if(isBufferReady()) {
-		handleCommutation(bufferGet(), pwmVal);
-	}
-	//Test sending
-//	for(int i = 0 ; i < 100000; i++) {
+//	if(isBufferReady()) {
+//		handleCommutation(bufferGet(), pwmVal);
 //	}
-//	CDC_Transmit("hello \r\n");
 
+	if (line_ready)
+	{
+		line_ready = 0;   // clear cờ
+
+		// In ra dữ liệu vừa nhận được + thêm xuống dòng
+		CDC_Transmit_FS((uint8_t*)usb_rx_buffer, strlen(usb_rx_buffer));
+		CDC_Transmit_FS((uint8_t*)"\r\n", 2);
   }
 }
 
