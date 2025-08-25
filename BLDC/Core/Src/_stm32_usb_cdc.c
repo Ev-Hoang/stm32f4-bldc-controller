@@ -9,5 +9,5 @@
 
 char usb_rx_buffer[RX_BUF_SIZE];
 uint16_t usb_rx_index = 0;
-uint8_t line_ready = 0;
+uint8_t uart_line_ready = 0;
 

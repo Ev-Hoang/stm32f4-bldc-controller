@@ -261,28 +261,16 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
   */
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
-    for (uint32_t i = 0; i < *Len; i++)
-    {
-        char c = Buf[i];
-
-        if (c == '\n')  // kết thúc 1 dòng
-        {
-            usb_rx_buffer[usb_rx_index] = '\0';  // kết thúc chuỗi
-            usb_rx_index = 0;                    // reset index cho lần sau
-            line_ready = 1;                      // báo có data mới
-        }
-        else
-        {
-            if (usb_rx_index < RX_BUF_SIZE - 1)  // tránh tràn buffer
-            {
-                usb_rx_buffer[usb_rx_index++] = c;
-            }
-        }
-    }
-
     // Chuẩn bị nhận tiếp
     USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
     USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+
+    uint8_t len = (uint8_t)*Len;
+    memset(usb_rx_buffer,'\0', 64);
+    memcpy(usb_rx_buffer,Buf,len);
+    memset(Buf,'\0', 64);
+
+    uart_line_ready = 1;
 
     return (USBD_OK);
 }

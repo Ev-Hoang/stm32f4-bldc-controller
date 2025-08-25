@@ -15,10 +15,11 @@ uint8_t pwmVal = 50;
 void CDC_Transmit(char *msg)
 {
     uint16_t len = strlen(msg);
-    USBD_CDC_SetTxBuffer(&hUsbDeviceFS, (uint8_t*)msg, len);
-    USBD_CDC_TransmitPacket(&hUsbDeviceFS);
+    uint8_t status;
+    do {
+        status = CDC_Transmit_FS((uint8_t*)msg, len);
+    } while (status == USBD_BUSY);
 }
-
 //======================================================
 //FUNCTIONS
 //======================================================
@@ -49,7 +50,7 @@ int main(void)
 {
   STM32_Init();
   //BLDC_Start();
-
+  int c = 0;
   //Program loop
   while (1)
   {
@@ -57,14 +58,21 @@ int main(void)
 //	if(isBufferReady()) {
 //		handleCommutation(bufferGet(), pwmVal);
 //	}
+//	c++;
+//	if (c > 1000000) {
+//		c = 0;
+//		CDC_Transmit("Send Test\r\n");
+//	}
 
-	if (line_ready)
+	if (uart_line_ready)
 	{
-		line_ready = 0;   // clear cờ
-
 		// In ra dữ liệu vừa nhận được + thêm xuống dòng
-		CDC_Transmit_FS((uint8_t*)usb_rx_buffer, strlen(usb_rx_buffer));
-		CDC_Transmit_FS((uint8_t*)"\r\n", 2);
+		CDC_Transmit(" STM32 Send: ");
+		CDC_Transmit(usb_rx_buffer);
+		CDC_Transmit("\r\n");
+
+		uart_line_ready = 0;   // clear cờ
+	}
   }
 }
 
