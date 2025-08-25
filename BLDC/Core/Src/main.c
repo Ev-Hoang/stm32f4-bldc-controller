@@ -67,7 +67,7 @@ int main(void)
 	if (uart_line_ready)
 	{
 		// In ra dữ liệu vừa nhận được + thêm xuống dòng
-		CDC_Transmit(" STM32 Send: ");
+		CDC_Transmit(" STM32 Received: ");
 		CDC_Transmit(usb_rx_buffer);
 		CDC_Transmit("\r\n");
 

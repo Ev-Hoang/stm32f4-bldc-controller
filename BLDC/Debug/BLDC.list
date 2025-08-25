@@ -7,19 +7,19 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
   1 .text         00006e60  08000188  08000188  00001188  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .rodata       0000007c  08006fe8  08006fe8  00007fe8  2**2
+  2 .rodata       00000080  08006fe8  08006fe8  00007fe8  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  3 .ARM.extab    00000000  08007064  08007064  00009158  2**0
+  3 .ARM.extab    00000000  08007068  08007068  00009158  2**0
                   CONTENTS
-  4 .ARM          00000008  08007064  08007064  00008064  2**2
+  4 .ARM          00000008  08007068  08007068  00008068  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  5 .preinit_array 00000000  0800706c  0800706c  00009158  2**0
+  5 .preinit_array 00000000  08007070  08007070  00009158  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  6 .init_array   00000004  0800706c  0800706c  0000806c  2**2
+  6 .init_array   00000004  08007070  08007070  00008070  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  7 .fini_array   00000004  08007070  08007070  00008070  2**2
+  7 .fini_array   00000004  08007074  08007074  00008074  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  8 .data         00000158  20000000  08007074  00009000  2**2
+  8 .data         00000158  20000000  08007078  00009000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
   9 .ccmram       00000000  10000000  10000000  00009158  2**0
                   CONTENTS
@@ -211,7 +211,7 @@ int readHallSensor(void)
  800029e:	bf00      	nop
  80002a0:	40020000 	.word	0x40020000
  80002a4:	2000017a 	.word	0x2000017a
- 80002a8:	0800705c 	.word	0x0800705c
+ 80002a8:	08007060 	.word	0x08007060
 
 080002ac <STM32_Init>:
 
@@ -1053,7 +1053,7 @@ int main(void)
  800080c:	d0fb      	beq.n	8000806 <main+0xe>
 	{
 		// In ra dữ liệu vừa nhận được + thêm xuống dòng
-		CDC_Transmit(" STM32 Send: ");
+		CDC_Transmit(" STM32 Received: ");
  800080e:	4807      	ldr	r0, [pc, #28]	@ (800082c <main+0x34>)
  8000810:	f7ff ffba 	bl	8000788 <CDC_Transmit>
 		CDC_Transmit(usb_rx_buffer);
@@ -1072,7 +1072,7 @@ int main(void)
  8000828:	200001bc 	.word	0x200001bc
  800082c:	08006fe8 	.word	0x08006fe8
  8000830:	2000017c 	.word	0x2000017c
- 8000834:	08006ff8 	.word	0x08006ff8
+ 8000834:	08006ffc 	.word	0x08006ffc
 
 08000838 <Error_Handler>:
 
@@ -1090,7 +1090,7 @@ void Error_Handler(void)
  8000842:	bf00      	nop
  8000844:	e7fd      	b.n	8000842 <Error_Handler+0xa>
  8000846:	bf00      	nop
- 8000848:	08006ffc 	.word	0x08006ffc
+ 8000848:	08007000 	.word	0x08007000
 
 0800084c <HAL_MspInit>:
 #include "main.h"
@@ -1534,7 +1534,7 @@ LoopFillZerobss:
   ldr r1, =_edata
  8000a68:	20000158 	.word	0x20000158
   ldr r2, =_sidata
- 8000a6c:	08007074 	.word	0x08007074
+ 8000a6c:	08007078 	.word	0x08007078
   ldr r2, =_sbss
  8000a70:	20000158 	.word	0x20000158
   ldr r4, =_ebss
@@ -15857,7 +15857,7 @@ uint8_t * USBD_FS_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length
  8005e8c:	bd80      	pop	{r7, pc}
  8005e8e:	bf00      	nop
  8005e90:	200014a8 	.word	0x200014a8
- 8005e94:	08007014 	.word	0x08007014
+ 8005e94:	08007018 	.word	0x08007018
 
 08005e98 <USBD_FS_ManufacturerStrDescriptor>:
   * @param  speed : Current device speed
@@ -15886,7 +15886,7 @@ uint8_t * USBD_FS_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *l
  8005eb4:	46bd      	mov	sp, r7
  8005eb6:	bd80      	pop	{r7, pc}
  8005eb8:	200014a8 	.word	0x200014a8
- 8005ebc:	0800702c 	.word	0x0800702c
+ 8005ebc:	08007030 	.word	0x08007030
 
 08005ec0 <USBD_FS_SerialStrDescriptor>:
   * @param  speed : Current device speed
@@ -15965,7 +15965,7 @@ uint8_t * USBD_FS_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
  8005f14:	bd80      	pop	{r7, pc}
  8005f16:	bf00      	nop
  8005f18:	200014a8 	.word	0x200014a8
- 8005f1c:	08007040 	.word	0x08007040
+ 8005f1c:	08007044 	.word	0x08007044
 
 08005f20 <USBD_FS_InterfaceStrDescriptor>:
   * @param  speed : Current device speed
@@ -16009,7 +16009,7 @@ uint8_t * USBD_FS_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *leng
  8005f50:	bd80      	pop	{r7, pc}
  8005f52:	bf00      	nop
  8005f54:	200014a8 	.word	0x200014a8
- 8005f58:	0800704c 	.word	0x0800704c
+ 8005f58:	08007050 	.word	0x08007050
 
 08005f5c <Get_SerialNum>:
   * @brief  Create the serial number string descriptor
@@ -17842,10 +17842,10 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  8006b26:	4798      	blx	r3
  8006b28:	3601      	adds	r6, #1
  8006b2a:	e7f2      	b.n	8006b12 <__libc_init_array+0x1e>
- 8006b2c:	0800706c 	.word	0x0800706c
- 8006b30:	0800706c 	.word	0x0800706c
- 8006b34:	0800706c 	.word	0x0800706c
- 8006b38:	08007070 	.word	0x08007070
+ 8006b2c:	08007070 	.word	0x08007070
+ 8006b30:	08007070 	.word	0x08007070
+ 8006b34:	08007070 	.word	0x08007070
+ 8006b38:	08007074 	.word	0x08007074
 
 08006b3c <__retarget_lock_init_recursive>:
  8006b3c:	4770      	bx	lr
